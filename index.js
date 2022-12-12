@@ -1,43 +1,49 @@
 var xhr = new XMLHttpRequest();
 
-function promise(value) {
+function ajax(method, url) {
+  
     return new Promise(function (resolve, reject) {
-        if(value) {
-            resolve("Value true");
-        } else {
-            reject("Value false");
+      let xhr;
+      if (window.XMLHttpRequest) {
+        xhr = new XMLHttpRequest();
+      } else {
+        xhr = new ActiveXObject("Microsoft.XMLHTTP");
+      }
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          resolve(xhr.responseText);
         }
+      };
+
+      xhr.open(method, url, true);
+
+      xhr.onerror = function () {
+        reject(Error("Houve um problema com a rede."));
+      };
+
+      xhr.send();
     });
 }
 
-// promise(false).then(
-//     function(response) {
-//         console.log(response);
-//     },
-//     function(error) {
-//         console.log(error);
-//     }
-// );
+function randomImages() {
 
-// promise(true)
-//     .then(function(response) {
-//         console.log(response);
-//     })
-//     .catch(function(error) {
-//         console.log(error);
-//     }
-// );
+    ajax("GET", "data.json")
+        .then(function (response) {
+        var data = JSON.parse(response);
 
-function randomImages() {    
-    xhr.open("GET", "data.json", true);
-    xhr.send();    
-    for (let i = 0; i <= images.length; i++) {
-        let image = images[Math.floor(Math.random() * 15)];
-        var result = document.getElementById("result");
-        var img = document.createElement("img");
-        img.src = image;
-        result.appendChild(img);
-    }
+        for (let i = 0; i <= data.images.length; i++) {
+            let image = data.images[Math.floor(Math.random() * 15)];
+            var result = document.getElementById("result");
+            var img = document.createElement("img");
+            img.src = image.url;
+            result.appendChild(img);
+        }
+    }).catch(function (error) {
+        console.log(error);
+    });
+
+    
 }
 
 document.addEventListener('scroll', () => {
